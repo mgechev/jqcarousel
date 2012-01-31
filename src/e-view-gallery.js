@@ -3,11 +3,13 @@
     $.widget('ui.eView', {
     
         options: {
-            eccentricity: 0.99,
+            eccentricity: 0.98,
             focus: 300,
             images: null,
             imageWidth: 80,
-            animationDuration: 1000,
+            animationDuration: 700,
+            top: 200,
+            left: 550,
             direction: 'cw' //'ccw', 'shorter', 'cw'
         },
 
@@ -15,7 +17,8 @@
             images: [],
             a: 0,
             b: 0,
-            activeAnimation: false
+            activeAnimation: false,
+            wrapper: null
         },
     
         _create: function () {
@@ -27,6 +30,7 @@
             this._performLayout();
             //this._removeEventListeners();
             this._addEventListeners();
+          //  this._handlePerspective();
         },
         
         _render: function () {
@@ -35,6 +39,7 @@
                 count = 0.
                 settings = this._settings;
             this._calculateEllipse();
+            settings.wrapper = this.element.append('<div/>').children()
             images.each(function (index, element) {
                 image = {
                     image: $(element)
@@ -53,14 +58,13 @@
         },
         
         _performLayout: function () {
-            var count = this._settings.count,
+            var settings = this._settings;
+                count = settings.count,
                 step = (2 * Math.PI) / count,
                 angle = Math.PI / 2;
-                images = this._settings.images,
+                images = settings.images,
                 image = null,
                 i = 0;
-            console.log(count);
-            console.log(step);
             for (; i < images.length; i += 1) {
                 image = images[i].image;
                 image.css('position', 'absolute');
@@ -69,11 +73,11 @@
                 angle += step;
             }
         },
-        
+
         _setImagePosition: function (image, angle) {
             var settings = this._settings, 
-                x = 500 + settings.a * Math.cos(angle),
-                y = 200 + settings.b * Math.sin(angle);
+                x = this.options.left + settings.a * Math.cos(angle),
+                y = this.options.top + settings.b * Math.sin(angle);
             image.css({
                 'left': x + 'px',
                 'top': y + 'px'
@@ -108,7 +112,11 @@
                 step = distance / steps;
             if (distance > 0) {
                 for (; i < images.length; i += 1) {
-                    this._moveImage(i, step, steps, images[i].angle + distance);
+                    if (this.options.direction === 'cw') {
+                        this._moveImage(i, step, steps, images[i].angle + distance);
+                    } else {
+                        this._moveImage(i, step, steps, images[i].angle - distance);
+                    }
                 }
             }
         },
@@ -118,7 +126,7 @@
                 self = this;
             this._settings.activeAnimation = true;
             if (count > 0) {
-                image.angle += step;
+                image.angle += (this.options.direction === 'cw') ? step : -step;
                 setTimeout(function () {
                     self._moveImage(index, step, count - 1, target);
                 }, 20);
@@ -131,17 +139,27 @@
             this._setImagePosition(image.image, image.angle);
         },
         
+        _handlePerspective: function () {
+            var images = this._settings.images,
+                i = 0;
+            for (; i < images.length; i += 1) {
+                this._handleImageZIndex(images[i].image);
+            }
+        },
+        
         _handleImageZIndex: function (image) {
             var count = this._settings.images.length,
-                distance = Math.abs(image.angle - Math.PI / 2) % Math.PI,
-                zoneSize = Math.PI / (count / 2),
+                distance = Math.abs(image.angle - Math.PI / 2),
+                zoneSize = Math.PI / count,
                 i = 0,
+                handled = false,
                 currentZone = 0,
-                zIndex = Math.round(count / 2 + 300);
-            for (; i < count; i += 1) {
+                zIndex = Math.ceil(count / 2);
+            for (; i < count && !handled; i += 1) {
                 if (distance <= currentZone + zoneSize &&
-                   distance >= currentZone - zoneSize) {
+                    distance >= currentZone - zoneSize) {
                     image.image.css('z-index', zIndex);
+                    handled = true;
                }
                 currentZone += zoneSize;
                 zIndex -= 1;
@@ -149,21 +167,40 @@
         },
         
         _getDistance: function (source, target) {
-            var tempDistance,
-                distance = 0;
             if (source === target) {
                 return 0;
             }
-            if (this.options.direction === 'cw') {
-                tempDistance = Math.abs(source - target);
-                tempDistance %= (2 * Math.PI);
-                if (Math.cos(source) < 0) {
-                    distance = Math.max((2 * Math.PI) - tempDistance, tempDistance);
-                } else {
-                    distance = Math.min((2 * Math.PI) - tempDistance, tempDistance);
-                }
+            switch (this.options.direction) {
+                case 'cw':
+                    return this._getCWDistance(source, target);
+                case 'ccw':
+                    return this._getCCWDistance(source, target);
             }
-            return distance;
+            return 0;
+        },
+        
+        _getCWDistance: function (source, target) {
+            var tempDistance,
+                distance = 0;        
+            tempDistance = Math.abs(source - target) % (2 * Math.PI);
+            if (Math.cos(source) < 0) {
+                distance = Math.max((2 * Math.PI) - tempDistance, tempDistance);
+            } else {
+                distance = Math.min((2 * Math.PI) - tempDistance, tempDistance);
+            }
+            return distance;            
+        },
+        
+        _getCCWDistance: function (source, target) {
+            var tempDistance,
+                distance = 0;        
+            tempDistance = Math.abs(source - target) % (2 * Math.PI);
+            if (Math.cos(source) > 0) {
+                distance = Math.max((2 * Math.PI) - tempDistance, tempDistance);
+            } else {
+                distance = Math.min((2 * Math.PI) - tempDistance, tempDistance);
+            }
+            return distance;        
         }
         
     });
