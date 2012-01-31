@@ -4,7 +4,7 @@
     
         options: {
             eccentricity: 0.99,
-            focus: 200,
+            focus: 300,
             images: null,
             imageWidth: 80,
             animationDuration: 1000,
@@ -15,7 +15,7 @@
             images: [],
             a: 0,
             b: 0,
-            count: 0
+            activeAnimation: false
         },
     
         _create: function () {
@@ -89,7 +89,9 @@
                 image = images[i].image;
                 (function (i) {
                     image.bind('click', function () {
-                        self._showFront(i);
+                        if (!self._settings.activeAnimation) {
+                            self._showFront(i);
+                        }
                     });
                 }(i));
             }
@@ -114,22 +116,35 @@
         _moveImage: function (index, step, count, target) {
             var image = this._settings.images[index],
                 self = this;
+            this._settings.activeAnimation = true;
             if (count > 0) {
-                image.angle += step;            
+                image.angle += step;
                 setTimeout(function () {
                     self._moveImage(index, step, count - 1, target);
                 }, 20);
             } else {
                 image.angle = target;
                 image.angle %= 2 * Math.PI;
-            }            
+                this._settings.activeAnimation = false;
+            }
+            this._handleImageZIndex(image);
             this._setImagePosition(image.image, image.angle);
         },
         
-        _fixAngle: function (index) {
-            var image = this._settings.images[index];
-            while (image.angle > Math.PI) {
-                image.angle -= 2 * Math.PI;
+        _handleImageZIndex: function (image) {
+            var count = this._settings.images.length,
+                distance = Math.abs(image.angle - Math.PI / 2) % Math.PI,
+                zoneSize = Math.PI / (count / 2),
+                i = 0,
+                currentZone = 0,
+                zIndex = Math.round(count / 2 + 300);
+            for (; i < count; i += 1) {
+                if (distance <= currentZone + zoneSize &&
+                   distance >= currentZone - zoneSize) {
+                    image.image.css('z-index', zIndex);
+               }
+                currentZone += zoneSize;
+                zIndex -= 1;
             }
         },
         
