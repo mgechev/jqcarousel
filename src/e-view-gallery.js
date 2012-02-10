@@ -10,6 +10,7 @@
             images: null,
             animationDuration: 700,
             opacity: true,
+            minZIndex: 0.4,
             direction: 'cw' //'ccw', 'cw'
         },
 
@@ -24,7 +25,8 @@
             b: 0,
             activeAnimation: 0,
             wrapper: null,
-            current: 0
+            current: 0,
+            stepDuration: 20
         },
 
         _create: function () {
@@ -147,7 +149,7 @@
                 image = this._settings.images[index],
                 i = images.length,
                 distance = this._getDistance(image.angle, Math.PI / 2, direction),
-                steps = animationDuration / 20,
+                steps = animationDuration / this._settings.stepDuration,
                 step = distance / steps;
             this._settings.current = index;
             direction = direction || this.options.direction;
@@ -171,7 +173,7 @@
                 image.angle += step;
                 setTimeout(function () {
                     self._moveImage(index, step, stepsCount - 1, target);
-                }, 20);
+                }, this._settings.stepDuration);
             } else {
                 this._finishImageMovement(target, image);
             }
@@ -191,25 +193,10 @@
         },
 
         _handleImageZIndex: function (image) {
-            var count = Math.ceil(this._settings.images.length / 2),
-                distance = Math.abs((image.angle % (2 * Math.PI)) - Math.PI / 2),
-                zoneSize = Math.PI / count,
-                i = count,
-                handled = false,
-                currentZone = 0,
-                zIndex = count;
-            while (i && !handled) {
-                i -= 1;
-                if (distance <= (currentZone + (zoneSize / 2)) && distance > (currentZone - (zoneSize / 2))) {
-                    handled = true;
-                }
-                if (!handled && i) {
-                    currentZone += zoneSize;
-                    zIndex -= 1;
-                }
-            }
-            image.image[0].style.zIndex = zIndex;
-            this._handleOpacity(image.image[0], zIndex / count + 0.3);
+            var zIndex = Math.round(Math.sin(image.angle) * 1000),
+                imageElement = image.image[0];
+            imageElement.style.zIndex = zIndex;
+            this._handleOpacity(imageElement, ((zIndex + 1000) / 1000 + this.options.minZIndex));
         },
 
         _handleOpacity: function (image, opacity) {

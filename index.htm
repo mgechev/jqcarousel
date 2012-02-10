@@ -1,76 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<script src="src/jquery-1.7.1.min.js" type="text/javascript"></script>
-<script src="src/jquery-ui-1.8.17.js" type="text/javascript"></script>
-<script src="src/e-view-gallery.js" type="text/javascript"></script>
-<script type="text/javascript">
-$(document).ready(function () {
-    $('#foo').eView({ images: '.a' });
-});
-</script>
-<style type="text/css">
-.a {
-    height: 200px;
-    font-size: 35px;
-    color: #ffffff;
-    box-shadow: 0 20px 15px -3px black;
-    border: 1px solid black;
-    padding: 8px;
-    background-color: #ffffff;
-}
-img {
-    height: 200px;
-    border: 1px solid #777;
-}
-body {
-    background-color: #000000;
-    background-image: url(http://mgechev.com/images/body_background.png);
-    background-position: center center;
-}
-#foo {
-    left: 50%;
-    top: 50%;
-    margin-left: -150px;
-    margin-top: 150px;
-}
-</style>
-</head>
-<body>
-<div id="foo">
- <div  class="a">
-    <img src="http://a5.sphotos.ak.fbcdn.net/hphotos-ak-ash4/419203_2911717466992_1082302468_33101148_89018308_n.jpg" />
- </div>
- <div  class="a">
-    <img src="http://a2.sphotos.ak.fbcdn.net/hphotos-ak-ash4/403802_2744332002460_1082302468_33020035_535895617_n.jpg" />
- </div>
- <div  class="a">
-    <img src="http://a6.sphotos.ak.fbcdn.net/hphotos-ak-ash4/383057_2615539982740_1082302468_32944013_1385645678_n.jpg" />
- </div>
- <div  class="a" id="a"> 
-     <img src="http://a3.sphotos.ak.fbcdn.net/hphotos-ak-ash4/383572_2615321177270_1082302468_32943825_1182827333_n.jpg" />
- </div> 
- <div  class="a" id="b">
-    <img src="http://a5.sphotos.ak.fbcdn.net/hphotos-ak-snc7/391644_2524781153826_1082302468_32907096_1589575423_n.jpg" />
- </div>
- <div  class="a">
-    <img src="http://a7.sphotos.ak.fbcdn.net/hphotos-ak-ash4/386686_2437285686494_1082302468_32869126_34243081_n.jpg" />
- </div>
- <div  class="a">
-    <img src="http://a4.sphotos.ak.fbcdn.net/hphotos-ak-ash4/308148_2379298556852_1082302468_32816514_2071427155_n.jpg" />
- </div>
- <div  class="a">
-    <img src="http://a2.sphotos.ak.fbcdn.net/hphotos-ak-ash4/1391_1068307302890_1082302468_30234354_1938_n.jpg" />
- </div>
- <div  class="a" id="a"> 
-     <img src="http://a8.sphotos.ak.fbcdn.net/hphotos-ak-snc7/155075_1667123272915_1082302468_31868122_6224590_n.jpg" />
- </div> 
-</div>
-<!-- <div class="a" style="background: #000000;" id="p1">1</div>
- <div class="a" style="background: #000000;" id="p2">2</div>
- <div class="a" style="background: #000000;" id="p3">3</div>
- <div class="a" style="background: #000000;" id="p4">4</div>
- <div class="a" style="background: #000000;" id="p5">5</div> -->
-
- </body>
+    <head>
+        <script src="src/jquery-1.7.1.min.js" type="text/javascript"></script>
+        <script src="src/jquery-ui-1.8.17.js" type="text/javascript"></script>
+        <script src="src/e-view-gallery.js" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#gallery').eView({ images: '.frame' });
+            });
+        </script>
+        <style type="text/css">
+            .frame {
+                height: 200px;
+                font-size: 35px;
+                color: #ffffff;
+                box-shadow: 0 20px 15px -3px black;
+                border: 1px solid black;
+                padding: 8px;
+                background-color: #ffffff;
+            }
+            img {
+                height: 200px;
+                border: 1px solid #777;
+            }
+            body {
+                background-color: #000000;
+                background-image: url(http://mgechev.com/images/body_background.png);
+                background-position: center center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="gallery" style="position: relative; left: 50%; margin-left: -150px; margin-top: 150px;">
+            <div  class="frame">
+                <img src="http://dublin.oh.us/historicdublin/img/building.jpg" />
+            </div>
+            <div  class="frame">
+                <img src="http://www.wbdg.org/images/teachinglabs_5.jpg" />
+            </div>
+            <div  class="frame">
+                <img src="http://www.alting.com/fotos/noticias/grandes/38.jpg?r=1327908193" />
+            </div>
+            <div  class="frame">
+                <img src="http://wainternational.adhostclient.com/pics/dresden_revisited_picture_frauenkirche.jpg" />
+            </div> 
+            <div  class="frame">
+                <img src="http://media.buildingsmedia.com/images/A_0708_GreatWall1.jpg" />
+            </div>
+            <div  class="frame">
+                <img src="http://www.sargent.com/images/FinalText_Photos/Commercial%20Page%20(not%20services)/Photos/USX%20Tower.jpg" />
+            </div>
+            <div  class="frame">
+                <img src="http://www.chicagomag.com/images/2011/0711/DE20110704-John-Hancock-building.jpg" />
+            </div> 
+            <div  class="frame">
+                <img src="http://www.ochshorndesign.com/cornell/writings/images/steel12.jpg" />
+            </div>  
+        </div>
+    </body>
 </html>
