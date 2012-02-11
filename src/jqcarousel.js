@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 * jslint nomen: true, indent: 4, maxerr: 50
 * @name jQCarousel
-* @version 1.0.0
+* @version 1.0.1
 * @author Minko Gechev
 * @date 2012-02-11
 *
@@ -22,12 +22,12 @@
 
         options: {
             eccentricity: 0.99,
-            focus: 200,
+            focus: 300,
             animationDuration: 700,
             opacity: true,
             minZIndex: 0.1,
-            angle: Math.PI / 3,
-            direction: 'cw'
+            angle: 0,
+            direction: 'shortest'
         },
 
         destroy: function () {
@@ -114,10 +114,10 @@
             var settings = this._settings,
                 tempLeft = settings.a * Math.cos(angle),
                 tempTop = settings.b * Math.sin(angle),
-                left = tempTop,
+                left = tempLeft,
                 top = tempTop,
                 rotationAngle = this.options.angle;
-            if (rotationAngle) {
+            if (rotationAngle !== 0) {
                 left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
                 top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
             }
@@ -176,16 +176,12 @@
                 step = distance / steps;
             this._settings.current = index;
             direction = direction || this.options.direction;
-            if (distance > 0) {
+            if (distance !== 0) {
                 while (i) {
                     i -= 1;
                     this._settings.activeAnimation += 1;
-                    image = this._settings.images[i];
-                    if (direction === 'cw') {
-                        this._moveImage(image, step, steps, images[i].angle + distance);
-                    } else {
-                        this._moveImage(image, -step, steps, images[i].angle - distance);
-                    }
+                    image = this._settings.images[i];                    
+                    this._moveImage(image, step, steps, images[i].angle + distance);
                 }
             }
         },
@@ -243,6 +239,14 @@
                 return this._getCWDistance(source, target);
             case 'ccw':
                 return this._getCCWDistance(source, target);
+            case 'shortest':
+                var ccwDistance = Math.abs(this._getCCWDistance(source, target)),
+                    cwDistance = this._getCWDistance(source, target);
+                if (cwDistance < ccwDistance) {
+                    return cwDistance;
+                } else {
+                    return -ccwDistance;
+                }
             }
             return 0;
         },
@@ -268,7 +272,7 @@
             } else {
                 distance = Math.min((2 * Math.PI) - tempDistance, tempDistance);
             }
-            return distance;
+            return -distance;
         },
 
         rotateRight: function (duration) {
