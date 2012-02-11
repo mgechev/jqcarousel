@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 * jslint nomen: true, indent: 4, maxerr: 50
 * @name jQCarousel
-* @version 1.0.1
+* @version 1.0.2
 * @author Minko Gechev
 * @date 2012-02-11
 *
@@ -12,7 +12,7 @@
 *
 *
 * @usage
-*   $('#gallery').jqcarousel({ focus: x, eccentricity: y, animationDuration: z, opacity: k, minZIndex: i, direction: j });
+*   $('#gallery').jqcarousel({ focus: x, eccentricity: y, animationDuration: z, opacity: k, minOpacity: i, direction: j, resize: m, minSizeRatio: n, angle: v });
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 (function ($) {
 
@@ -25,8 +25,10 @@
             focus: 300,
             animationDuration: 700,
             opacity: true,
-            minZIndex: 0.1,
+            resize: false,
             angle: 0,
+            minOpacity: 0.2,
+            minSizeRatio: 0.8,
             direction: 'shortest'
         },
 
@@ -40,20 +42,17 @@
             a: 0,
             b: 0,
             activeAnimation: 0,
-            wrapper: null,
             current: 0,
-            stepDuration: 20
+            stepDuration: 25,
+            sizeBackup: []
         },
 
         _create: function () {
-            this._refresh();
-        },
-
-        _refresh: function () {
             this._render();
+            this._sizeBackup();
             this._performLayout();
-            this._removeEventListeners();
-            this._addEventListeners();
+            this._removeEventHandlers();
+            this._addEventHandlers();
         },
 
         _render: function () {
@@ -77,6 +76,18 @@
                 options = this.options;
             settings.a = options.focus / options.eccentricity;
             settings.b = Math.sqrt(settings.a * settings.a - options.focus * options.focus);
+        },
+
+        _sizeBackup: function () {
+            var images = this._settings.images,
+                i = images.length;
+            while (i) {
+                i -= 1;
+                this._settings.sizeBackup[i] = {
+                    width: images[i].image.width(),
+                    height: images[i].image.height()
+                };
+            }
         },
 
         _performLayout: function () {
@@ -105,7 +116,7 @@
                 image[0].style.position = 'absolute';
                 this._setImagePosition(image, angle);
                 images[i].angle = angle;
-                this._handleImageZIndex(images[i]);
+                this._handlePerspective(images[i], i);
                 angle += step;
             }
         },
@@ -117,7 +128,7 @@
                 left = tempLeft,
                 top = tempTop,
                 rotationAngle = this.options.angle;
-            if (rotationAngle !== 0) {
+            if (rotationAngle) {
                 left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
                 top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
             }
@@ -125,7 +136,7 @@
             image[0].style.top = top + 'px';
         },
 
-        _removeEventListeners: function () {
+        _removeEventHandlers: function () {
             var count = this._settings.images.length,
                 images = this._settings.images;
             while (count) {
@@ -135,28 +146,28 @@
             $(document).off();
         },
 
-        _addEventListeners: function () {
+        _addEventHandlers: function () {
             var images = this._settings.images,
                 i = images.length,
                 image = null;
             while (i) {
                 i -= 1;
                 image = images[i].image;
-                this._addClickListener(image, i);
+                this._addMouseHandlers(image, i);
             }
-            $(document).on('keydown', { self: this }, this._keyDownHandler);
+            $(document).on('keydown', { self: this }, this._addKeyboardHandler);
         },
 
-        _addClickListener: function (image, index) {
+        _addMouseHandlers: function (image, index) {
             var self = this;
             image.on('click', function () {
                 if (!self._settings.activeAnimation) {
-                    self._showFront(index);
+                    self.showFront(index);
                 }
             });
         },
 
-        _keyDownHandler: function (event) {
+        _addKeyboardHandler: function (event) {
             var self = event.data.self;
             if (event.keyCode === 39) {
                 self.rotateLeft();
@@ -165,38 +176,17 @@
             }
         },
 
-        _showFront: function (index, duration, direction) {
-            var animationDuration =
-                    typeof duration === 'undefined' ? this.options.animationDuration : duration,
-                images = this._settings.images,
-                image = this._settings.images[index],
-                i = images.length,
-                distance = this._getDistance(image.angle, Math.PI / 2, direction),
-                steps = animationDuration / this._settings.stepDuration,
-                step = distance / steps;
-            this._settings.current = index;
-            direction = direction || this.options.direction;
-            if (distance !== 0) {
-                while (i) {
-                    i -= 1;
-                    this._settings.activeAnimation += 1;
-                    image = this._settings.images[i];                    
-                    this._moveImage(image, step, steps, images[i].angle + distance);
-                }
-            }
-        },
-
-        _moveImage: function (image, step, stepsCount, target) {
+        _moveImage: function (image, step, stepsCount, target, index) {
             var self = this;
             if (stepsCount > 0) {
                 image.angle += step;
                 setTimeout(function () {
-                    self._moveImage(image, step, stepsCount - 1, target);
+                    self._moveImage(image, step, stepsCount - 1, target, index);
                 }, this._settings.stepDuration);
             } else {
                 this._finishImageMovement(target, image);
             }
-            this._handleImageZIndex(image);
+            this._handlePerspective(image, index);
             this._setImagePosition(image.image, image.angle);
         },
 
@@ -211,11 +201,13 @@
             this._settings.activeAnimation -= 1;
         },
 
-        _handleImageZIndex: function (image) {
+        _handlePerspective: function (image, index) {
             var zIndex = Math.round(Math.sin(image.angle) * 1000),
-                imageElement = image.image[0];
-            imageElement.style.zIndex = zIndex;
-            this._handleOpacity(imageElement, ((zIndex + 1000) / 1000 + this.options.minZIndex));
+                imageElement = image.image,
+                ratio = (zIndex + 1000) / 2000;
+            imageElement[0].style.zIndex = zIndex;
+            this._handleOpacity(imageElement, ratio + this.options.minOpacity);
+            this._handleSize(imageElement, index, ratio + this.options.minSizeRatio);
         },
 
         _handleOpacity: function (image, opacity) {
@@ -225,7 +217,18 @@
                 } else if (opacity < 0) {
                     opacity = 0;
                 }
-                image.style.opacity = opacity;
+                image[0].style.opacity = opacity;
+            }
+        },
+
+        _handleSize: function (image, index, ratio) {
+            if (this.options.resize) {
+                ratio = (ratio > 1) ? 1 : ratio;
+                var size = this._settings.sizeBackup[index],
+                    newWidth = size.width * ratio,
+                    newHeight = size.height * ratio;
+                image[0].style.width = newWidth + 'px';
+                image[0].style.height = newHeight + 'px';
             }
         },
 
@@ -275,13 +278,34 @@
             return -distance;
         },
 
+        showFront: function (index, duration, direction) {
+            var animationDuration =
+                    typeof duration === 'undefined' ? this.options.animationDuration : duration,
+                images = this._settings.images,
+                image = this._settings.images[index],
+                i = images.length,
+                distance = this._getDistance(image.angle, Math.PI / 2, direction),
+                steps = animationDuration / this._settings.stepDuration,
+                step = distance / steps;
+            this._settings.current = index;
+            direction = direction || this.options.direction;
+            if (distance !== 0) {
+                while (i) {
+                    i -= 1;
+                    this._settings.activeAnimation += 1;
+                    image = this._settings.images[i];
+                    this._moveImage(image, step, steps, images[i].angle + distance, i);
+                }
+            }
+        },
+
         rotateRight: function (duration) {
             if (typeof duration === 'undefined') {
                 duration = this.options.animationDuration;
             }
             var settings = this._settings;
             if (!this._settings.activeAnimation) {
-                this._showFront((settings.current + 1) % settings.images.length, duration, 'cw');
+                this.showFront((settings.current + 1) % settings.images.length, duration, 'cw');
             }
         },
 
@@ -295,7 +319,7 @@
                 next = settings.images.length - 1;
             }
             if (!this._settings.activeAnimation) {
-                this._showFront(next, duration, 'ccw');
+                this.showFront(next, duration, 'ccw');
             }
         }
 
