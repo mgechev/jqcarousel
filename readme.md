@@ -1,14 +1,14 @@
 Carousel gallery
 ============
 
-jqCarousel is plugin used for creating carousel image galleries.
+jQCarousel is plugin used for creating carousel image galleries.
 It's not using canvases so it can be run under older browsers.
 
 Version: 1.0.2
 License: GPL
-Author: Minko Gechev @mgechev, http://mgechev.com/
+Author: [Minko Gechev](http://twitter.com/mgechev)
 
-jqCarousel API
+jQCarousel API
 ----------------------
 
  *focus - ellipse's focus.
@@ -24,6 +24,20 @@ jqCarousel API
 Sample usage
 ---------------------
 
+### JavaScript
+
     $(window).load(function () {
-        $(selector-of-the-element-which-is-containing-all-images).jqcarousel();
+        $('#gallery').jqcarousel();
     });
+
+### HTML
+
+    <div id="gallery">
+        <img src="images/1.png" alt="" />
+        <img src="images/2.png" alt="" />
+        <img src="images/3.png" alt="" />
+        <img src="images/4.png" alt="" />
+        <img src="images/5.png" alt="" />
+        <img src="images/6.png" alt="" />
+        <img src="images/7.png" alt="" />
+    </div>
