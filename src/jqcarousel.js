@@ -22,10 +22,11 @@
 
         options: {
             eccentricity: 0.99,
-            focus: 300,
+            focus: 200,
             animationDuration: 700,
             opacity: true,
             minZIndex: 0.1,
+            angle: Math.PI / 3,
             direction: 'cw'
         },
 
@@ -111,10 +112,17 @@
 
         _setImagePosition: function (image, angle) {
             var settings = this._settings,
-                x = settings.a * Math.cos(angle),
-                y = settings.b * Math.sin(angle);
-            image[0].style.left = x + 'px';
-            image[0].style.top = y + 'px';
+                tempLeft = settings.a * Math.cos(angle),
+                tempTop = settings.b * Math.sin(angle),
+                left = tempTop,
+                top = tempTop,
+                rotationAngle = this.options.angle;
+            if (rotationAngle) {
+                left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
+                top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
+            }
+            image[0].style.left = left + 'px';
+            image[0].style.top = top + 'px';
         },
 
         _removeEventListeners: function () {
