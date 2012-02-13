@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 * jslint nomen: true, indent: 4, maxerr: 50
 * @name jQCarousel
-* @version 1.0.2
+* @version 1.0.3
 * @author Minko Gechev
 * @date 2012-02-11
 *
@@ -12,8 +12,9 @@
 *
 *
 * @usage
-*   $('#gallery').jqcarousel({ focus: x, eccentricity: y, animationDuration: z, opacity: k, minOpacity: i, direction: j, resize: m, minSizeRatio: n, angle: v });
+*   $('#gallery').jqcarousel({ focus: x, eccentricity: y, animationDuration: z, opacity: k, minOpacity: i, direction: j, resize: m, minSizeRatio: n, angle: v, keyboardNavigation: u });
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 (function ($) {
 
     'use strict';
@@ -25,10 +26,11 @@
             focus: 300,
             animationDuration: 700,
             opacity: true,
-            resize: false,
+            resize: true,
             angle: 0,
             minOpacity: 0.2,
-            minSizeRatio: 0.8,
+            minSizeRatio: 0.3,
+            keyboardNavigation: true,
             direction: 'shortest'
         },
 
@@ -80,12 +82,16 @@
 
         _sizeBackup: function () {
             var images = this._settings.images,
-                i = images.length;
+                i = images.length,
+                width,
+                height;
             while (i) {
                 i -= 1;
+                width = images[i].image.width();
+                height = images[i].image.height();
                 this._settings.sizeBackup[i] = {
-                    width: images[i].image.width(),
-                    height: images[i].image.height()
+                    width: width,
+                    ratio: height / width
                 };
             }
         },
@@ -123,8 +129,8 @@
 
         _setImagePosition: function (image, angle) {
             var settings = this._settings,
-                tempLeft = settings.a * Math.cos(angle),
-                tempTop = settings.b * Math.sin(angle),
+                tempLeft = settings.a * Math.cos(angle) + settings.a,
+                tempTop = settings.b * Math.sin(angle) + settings.b,
                 left = tempLeft,
                 top = tempTop,
                 rotationAngle = this.options.angle;
@@ -169,10 +175,12 @@
 
         _addKeyboardHandler: function (event) {
             var self = event.data.self;
-            if (event.keyCode === 39) {
-                self.rotateLeft();
-            } else if (event.keyCode === 37) {
-                self.rotateRight();
+            if (self.options.keyboardNavigation) {
+                if (event.keyCode === 39) {
+                    self.rotateLeft();
+                } else if (event.keyCode === 37) {
+                    self.rotateRight();
+                }
             }
         },
 
@@ -226,7 +234,7 @@
                 ratio = (ratio > 1) ? 1 : ratio;
                 var size = this._settings.sizeBackup[index],
                     newWidth = size.width * ratio,
-                    newHeight = size.height * ratio;
+                    newHeight = newWidth * size.ratio;
                 image[0].style.width = newWidth + 'px';
                 image[0].style.height = newHeight + 'px';
             }

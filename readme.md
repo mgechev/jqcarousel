@@ -4,7 +4,7 @@ Carousel gallery
 jQCarousel is plugin used for creating carousel image galleries.
 It's not using canvases so it can be run under older browsers.
 
-  * Version: 1.0.2
+  * Version: 1.0.3
   * License: GPL
   * Author: [Minko Gechev](http://twitter.com/mgechev)
 
@@ -20,6 +20,7 @@ jQCarousel API
   * resize - indicates whether images size is going to be animated.
   * minSizeRatio - sets minimum size ratio, if you don't want to have any invisible images.
   * angle - sets ellipse angle.
+  * keyboardNavigation - sets whether the keyboard navigation should be active.
 
 Sample usage
 ---------------------
