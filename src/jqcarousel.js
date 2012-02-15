@@ -25,18 +25,125 @@
             eccentricity: 0.99,
             focus: 300,
             animationDuration: 700,
-            opacity: true,
-            resize: true,
+            opacity: false,
+            resize: false,
             angle: 0,
             minOpacity: 0.2,
             minSizeRatio: 0.3,
             keyboardNavigation: true,
-            direction: 'shortest'
+            direction: 'shortest',
+            enlargeSize: { width: 400, height: 400 },
+            enlargeDuration: 200,
+            closeDuration: 250,
+            closeButtonSize: 30
         },
 
         destroy: function () {
             this._removeEventListeners();
             this.element.remove();
+        },
+
+        showFront: function (index, duration, direction) {
+            var animationDuration =
+                    typeof duration === 'undefined' ? this.options.animationDuration : duration,
+                images = this._settings.images,
+                image = this._settings.images[index],
+                i = images.length,
+                distance = this._getDistance(image.angle, Math.PI / 2, direction),
+                steps = animationDuration / this._settings.stepDuration,
+                step = distance / steps;
+            this._settings.current = index;
+            direction = direction || this.options.direction;
+            if (distance !== 0) {
+                while (i) {
+                    i -= 1;
+                    this._settings.activeAnimation += 1;
+                    image = this._settings.images[i];
+                    this._moveImage(image, step, steps, images[i].angle + distance, i);
+                }
+            } else {
+                this.enlarge(image.image);
+            }
+        },
+
+        enlarge: function (image) {
+            var clone = image.clone(),
+                parent = image.parent(),
+                button;
+            clone[0].style.zIndex = 10000;
+            clone.appendTo(parent);
+            button = this._addCloseButton(clone);
+            this._enlarger(clone, image[0], button[0]);
+            this._settings.enlarged = true;
+        },
+
+        rotateRight: function (duration) {
+            if (typeof duration === 'undefined') {
+                duration = this.options.animationDuration;
+            }
+            var settings = this._settings;
+            if (!this._settings.activeAnimation) {
+                this.showFront((settings.current + 1) % settings.images.length, duration, 'cw');
+            }
+        },
+
+        rotateLeft: function (duration) {
+            if (typeof duration === 'undefined') {
+                duration = this.options.animationDuration;
+            }
+            var settings = this._settings,
+                next = settings.current - 1;
+            if (next < 0) {
+                next = settings.images.length - 1;
+            }
+            if (!this._settings.activeAnimation) {
+                this.showFront(next, duration, 'ccw');
+            }
+        },
+
+        _enlarger: function (clone, original, button) {
+            var enlargeSize = this.options.enlargeSize,
+                enlargeDuration = this.options.enlargeDuration,
+                buttonSize = this.options.closeButtonSize;
+            clone.animate({ width: enlargeSize.width, height: enlargeSize.height }, {
+                step: function (current, fx) {
+                    var left = parseInt(original.style.left, 10),
+                        top = parseInt(original.style.top, 10);
+                    if (fx.prop === 'width') {
+                        left = (left - (current - fx.start) / 2);
+                        this.style.left = left + 'px';
+                        button.style.left = (left - buttonSize / 2 + current) + 'px';
+                    } else {
+                        top = (top - (current - fx.start) / 2);
+                        this.style.top = top + 'px';
+                        button.style.top = (top - buttonSize / 2) + 'px';
+                    }
+                }
+            }, enlargeDuration);
+        },
+
+        _addCloseButton: function (image) {
+            var wrapper,
+                size = this.options.closeButtonSize,
+                self = this,
+                button = $('<img src="./images/close.png" alt="close" />');
+            image.wrap('<div style="display: inline-block;position:relative;"></div>');
+            wrapper = image.parent();
+            wrapper.append(button);
+            button.width(size);
+            button.height(size);
+            button.css({
+                'z-index': 100000,
+                'position': 'absolute',
+                'cursor': 'pointer'
+            });
+            button.bind('click', function () {
+                wrapper.children().fadeOut(self.options.closeDuration, function () {
+                    wrapper.remove();
+                    self._settings.enlarged = false;
+                });
+            });
+            return button;
         },
 
         _settings: {
@@ -46,7 +153,8 @@
             activeAnimation: 0,
             current: 0,
             stepDuration: 25,
-            sizeBackup: []
+            sizeBackup: [],
+            enlarged: true
         },
 
         _create: function () {
@@ -138,8 +246,10 @@
                 left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
                 top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
             }
-            image[0].style.left = left + 'px';
-            image[0].style.top = top + 'px';
+            left += 'px';
+            top += 'px';
+            image[0].style.left = left;
+            image[0].style.top = top;
         },
 
         _removeEventHandlers: function () {
@@ -284,51 +394,6 @@
                 distance = Math.min((2 * Math.PI) - tempDistance, tempDistance);
             }
             return -distance;
-        },
-
-        showFront: function (index, duration, direction) {
-            var animationDuration =
-                    typeof duration === 'undefined' ? this.options.animationDuration : duration,
-                images = this._settings.images,
-                image = this._settings.images[index],
-                i = images.length,
-                distance = this._getDistance(image.angle, Math.PI / 2, direction),
-                steps = animationDuration / this._settings.stepDuration,
-                step = distance / steps;
-            this._settings.current = index;
-            direction = direction || this.options.direction;
-            if (distance !== 0) {
-                while (i) {
-                    i -= 1;
-                    this._settings.activeAnimation += 1;
-                    image = this._settings.images[i];
-                    this._moveImage(image, step, steps, images[i].angle + distance, i);
-                }
-            }
-        },
-
-        rotateRight: function (duration) {
-            if (typeof duration === 'undefined') {
-                duration = this.options.animationDuration;
-            }
-            var settings = this._settings;
-            if (!this._settings.activeAnimation) {
-                this.showFront((settings.current + 1) % settings.images.length, duration, 'cw');
-            }
-        },
-
-        rotateLeft: function (duration) {
-            if (typeof duration === 'undefined') {
-                duration = this.options.animationDuration;
-            }
-            var settings = this._settings,
-                next = settings.current - 1;
-            if (next < 0) {
-                next = settings.images.length - 1;
-            }
-            if (!this._settings.activeAnimation) {
-                this.showFront(next, duration, 'ccw');
-            }
         }
 
     });
