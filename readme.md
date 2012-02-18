@@ -1,26 +1,32 @@
 Carousel gallery
 ============
 
-jQCarousel is plugin used for creating carousel image galleries.
-It's not using canvases so it can be run under older browsers.
+jQCarousel is jQuery UI plugin used for creating carousel image galleries.
+It's not using canvases or SVG so it can be run under older browsers.
 
-  * Version: 1.0.3
+  * Version: 1.0.4
   * License: GPL
   * Author: [Minko Gechev](http://twitter.com/mgechev)
 
 jQCarousel API
 ----------------------
 
-  * focus - ellipse's focus.
-  * eccentricity - ellipse eccentricity.
-  * animationDuration - the animation duration in milliseconds.
-  * opacity - indicates whether the plugin is going to animate images opacity.
-  * minOpacity -  sets the minimum opacity (if you don't want any transparent images).
-  * direction - rotation direction. Possible values for this property are: "cw", "ccw", "shortest".
-  * resize - indicates whether images size is going to be animated.
-  * minSizeRatio - sets minimum size ratio, if you don't want to have any invisible images.
-  * angle - sets ellipse angle.
-  * keyboardNavigation - sets whether the keyboard navigation should be active.
+ * eccentricity: Default - 0.99. Setting carousel's eccentricity.
+ * focus: Default - 300. Setting carousel's focus distance.
+ * animationDuration: Default - 700. Setting the duration of the images rotation.
+ * opacity: Default - true. Setting if the opacity of the images during the rotation is going to be changed,
+ * resize: Default - true. Setting if the size of the images during the rotation is going to be changed.
+ * angle: Default - 0. Setting the angle of the carousel.
+ * minOpacity: Default - 0.2. Setting the minimum opacity of the images (this property is useful only if the opacity property is true).
+ * minSizeRatio: Default - 0.3. Setting ratio which is going to control the minimum size of the images (this property is useful only if resize property is true).
+ * keyboardNavigation: Default - true. Setting if the keyboard navigation is enabled.
+ * imageWidth: Default - 300. Setting the maximum size of the images into the carousel.
+ * direction: Default - 'shortest'. Setting the carousel rotation direction. Possible values are 'shortest', 'cw', 'ccw'.
+ * enlargeWidth: Default - 500. Setting the size of the enlarged image.
+ * enlargeDuration: Default - 200. Setting the duration of the enlargement.
+ * closeDuration: Default - 250. Setting the duration of closing the enlarged image.
+ * closeButtonSize: Default - 30. Setting the size of the close button.
+ * enlargeEnabled: Default - true. Setting if the image could be enlarged.
 
 Sample usage
 ---------------------

@@ -1,19 +1,19 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-* jslint nomen: true, indent: 4, maxerr: 50
-* @name jQCarousel
-* @version 1.0.3
-* @author Minko Gechev
-* @date 2012-02-11
-*
-* @license GPL
-*
-* @description
-*   jQuery plugin creating carousel gallery.
-*
-*
-* @usage
-*   $('#gallery').jqcarousel({ settings });
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+    jQuery UI plugin jQCarousel v1.0.4.
+    Copyright (C) 2012 Minko Gechev, http://mgechev.com/, @mgechev
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 (function ($) {
 
@@ -68,7 +68,7 @@
                 var clone = image.clone(),
                     parent = image.parent(),
                     button;
-                clone[0].style.zIndex = 10000;
+                clone[0].style.zIndex = 200;
                 clone.appendTo(parent);
                 button = this._addCloseButton(clone);
                 this._enlarger(clone, image[0], button[0], index);
@@ -123,7 +123,8 @@
                 current: 0,
                 stepDuration: 25,
                 sizeBackup: [],
-                enlarged: true
+                enlarged: true,
+                maxHeight: 0
             };
         },
 
@@ -141,6 +142,9 @@
                 images = $(this.element.children()),
                 count = 0,
                 settings = this._settings;
+            this.element[0].tabIndex = 0;
+            this.element[0].style.zIndex = 101;
+            this.element.css('outline-width', '0px');
             this._calculateEllipse();
             images.each(function (index) {
                 image = {
@@ -149,7 +153,7 @@
                 settings.images.push(image);
                 count += 1;
             });
-            this._settings.count = count;
+            this.count = count;
         },
 
         _calculateEllipse: function () {
@@ -163,16 +167,21 @@
             var images = this._settings.images,
                 i = images.length,
                 width,
-                height;
+                height,
+                maxHeight = 0;
             while (i) {
                 i -= 1;
                 width = images[i].image.width();
                 height = images[i].image.height();
+                if (height > maxHeight) {
+                    maxHeight = height;
+                }
                 this._settings.sizeBackup[i] = {
                     width: width,
                     ratio: height / width
                 };
             }
+            this._settings.maxHeight = maxHeight;
         },
 
         _performLayout: function () {
@@ -182,7 +191,7 @@
 
         _performElementLayout: function () {
             this.element.width(this._settings.a * 2 + this.options.imageWidth);
-            this.element.height(1);
+            this.element.height(this._settings.maxHeight);
             this.element.css('overflow', 'visible');
             this.element.css('position', 'relative');
         },
@@ -243,7 +252,7 @@
             button.width(size);
             button.height(size);
             button.css({
-                'z-index': 100000,
+                'z-index': 201,
                 'position': 'absolute',
                 'cursor': 'pointer'
             });
@@ -288,7 +297,7 @@
                 count -= 1;
                 images[count].image.off();
             }
-            $(document).off('keydown.carousel.' + this.element[0].id, this._addKeyboardHandler);
+            this.element.off('keydown.carousel.' + this.element[0].id, this._addKeyboardHandler);
         },
 
         _addEventHandlers: function () {
@@ -300,7 +309,7 @@
                 image = images[i].image;
                 this._addMouseHandlers(image, i);
             }
-            $(document).on('keydown.carousel.' + this.element[0].id, { self: this }, this._addKeyboardHandler);
+            this.element.on('keydown.carousel.' + this.element[0].id, { self: this }, this._addKeyboardHandler);
         },
 
         _addMouseHandlers: function (image, index) {
@@ -349,9 +358,9 @@
         },
 
         _handlePerspective: function (image, index) {
-            var zIndex = Math.round(Math.sin(image.angle) * 1000),
+            var zIndex = Math.round(Math.sin(image.angle) * 100) + 100,
                 imageElement = image.image,
-                ratio = (zIndex + 1000) / 2000;
+                ratio = zIndex / 200;
             imageElement[0].style.zIndex = zIndex;
             this._handleOpacity(imageElement, ratio + this.options.minOpacity);
             this._handleSize(imageElement, index, ratio + this.options.minSizeRatio);
@@ -364,7 +373,7 @@
                 } else if (opacity < 0) {
                     opacity = 0;
                 }
-                image[0].style.opacity = opacity;
+                image.fadeTo(0, opacity);
             }
         },
 
@@ -424,6 +433,5 @@
             }
             return -distance;
         }
-
     });
 }(jQuery));
