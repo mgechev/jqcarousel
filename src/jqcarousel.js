@@ -403,9 +403,8 @@
                     cwDistance = this._getCWDistance(source, target);
                 if (cwDistance < ccwDistance) {
                     return cwDistance;
-                } else {
-                    return -ccwDistance;
                 }
+                return -ccwDistance;
             }
             return 0;
         },
