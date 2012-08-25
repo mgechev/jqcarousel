@@ -4,12 +4,14 @@ Carousel gallery
 jQCarousel is jQuery UI plugin used for creating carousel image galleries.
 It's not using canvases or SVG so it can be run under older browsers.
 
-  * Version: 1.0.4
+  * Version: 1.1.4
   * License: GPL
   * Author: [Minko Gechev](http://twitter.com/mgechev)
 
 jQCarousel API
 ----------------------
+
+**Properties**
 
  * eccentricity: Default - 0.99. Setting carousel's eccentricity.
  * focus: Default - 300. Setting carousel's focus distance.
@@ -27,6 +29,15 @@ jQCarousel API
  * closeDuration: Default - 250. Setting the duration of closing the enlarged image.
  * closeButtonSize: Default - 30. Setting the size of the close button.
  * enlargeEnabled: Default - true. Setting if the image could be enlarged.
+ * enlargedOffset: Default - [0, 0]. Setting the offset of the elnarged image.
+
+**Methods**
+
+ * showFront: Arguments - { index: number }. Rotating the carousel so that a specific picture to be at the front.
+ * enlarge: Arguments - { index: number }. Enlarging specific image.
+ * removeEnlarged: Arguments - none. Closing the current enlarged image.
+ * rotateRight: Arguments - { duration: number }. Rotating the carousel once with right direction.
+ * rotateLeft: Arguments - { duration: number }. Rotating the carousel once with left direction.
 
 Sample usage
 ---------------------

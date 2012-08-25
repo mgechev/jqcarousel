@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-    jQuery UI plugin jQCarousel v1.0.4.
+    jQuery UI plugin jQCarousel v1.1.4.
     Copyright (C) 2012 Minko Gechev, http://mgechev.com/, @mgechev
 
     This program is free software: you can redistribute it and/or modify
@@ -14,10 +14,23 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*jslint nomen: true */
 
 (function ($) {
 
     'use strict';
+
+    var _images = [],
+        _a = 0,
+        _b = 0,
+        _activeAnimation = 0,
+        _current = 0,
+        _stepDuration = 25,
+        _sizeBackup = [],
+        _enlarged = false,
+        _maxHeight = 0,
+        _enlargedItems = null;
+
 
     $.widget('ui.jqcarousel', {
 
@@ -37,65 +50,66 @@
             enlargeDuration: 200,
             closeDuration: 250,
             closeButtonSize: 30,
-            enlargeEnabled: true
+            enlargeEnabled: true,
+            enlargedOffset: [0, 0]
         },
 
         showFront: function (index, duration, direction) {
-            var animationDuration =
-                    typeof duration === 'undefined' ? this.options.animationDuration : duration,
-                images = this._settings.images,
-                image = this._settings.images[index],
-                distance = this._getDistance(image.angle, Math.PI / 2, direction),
-                steps = animationDuration / this._settings.stepDuration,
-                step = distance / steps,
-                i = images.length;
-            this._settings.current = index;
+            var animationDuration = duration === undefined ? this.options.animationDuration : duration,
+                image = _images[index],
+                distance;
             direction = direction || this.options.direction;
-            if (distance !== 0) {
-                while (i) {
-                    i -= 1;
-                    this._settings.activeAnimation += 1;
-                    image = this._settings.images[i];
-                    this._moveImage(image, step, steps, images[i].angle + distance, i);
-                }
-            } else {
-                this.enlarge(image.image, index);
+            if (!_enlarged) {
+                this._rotateImages(index, animationDuration, direction, distance);
             }
         },
 
-        enlarge: function (image, index) {
+        enlarge: function (index) {
             if (this.options.enlargeEnabled) {
-                var clone = image.clone(),
+                var image = _images[index].image,
+                    clone = image.clone(),
                     parent = image.parent(),
                     button;
                 clone[0].style.zIndex = 200;
                 clone.appendTo(parent);
                 button = this._addCloseButton(clone);
+                _enlargedItems = { image: clone, button: button };
                 this._enlarger(clone, image[0], button[0], index);
-                this._settings.enlarged = true;
+                _enlarged = true;
+            }
+        },
+
+        removeEnlarged: function () {
+            if (_enlargedItems) {
+                var image = _enlargedItems.image,
+                    button = _enlargedItems.button;
+                button.fadeOut(this.options.closeDuration);
+                image.fadeOut(this.options.closeDuration, function () {
+                    image.remove();
+                    button.remove();
+                    _enlarged = false;
+                });
             }
         },
 
         rotateRight: function (duration) {
-            if (typeof duration === 'undefined') {
+            if (duration === undefined) {
                 duration = this.options.animationDuration;
             }
-            var settings = this._settings;
-            if (!this._settings.activeAnimation) {
-                this.showFront((settings.current + 1) % settings.images.length, duration, 'cw');
+            if (!_activeAnimation) {
+                this.showFront((_current + 1) % _images.length, duration, 'cw');
             }
         },
 
         rotateLeft: function (duration) {
-            if (typeof duration === 'undefined') {
+            if (duration === undefined) {
                 duration = this.options.animationDuration;
             }
-            var settings = this._settings,
-                next = settings.current - 1;
+            var next = _current - 1;
             if (next < 0) {
-                next = settings.images.length - 1;
+                next = _images.length - 1;
             }
-            if (!this._settings.activeAnimation) {
+            if (!_activeAnimation) {
                 this.showFront(next, duration, 'ccw');
             }
         },
@@ -104,28 +118,29 @@
             this._removeEventListeners();
         },
 
+        _rotateImages: function (index, duration, direction) {
+            var i = _images.length,
+                image = _images[index],
+                distance = this._getDistance(image.angle, Math.PI / 2, direction),
+                steps = duration / _stepDuration,
+                step = distance / steps;
+            _current = index;
+            direction = direction || this.options.direction;
+            while (i) {
+                i -= 1;
+                _activeAnimation += 1;
+                image = _images[i];
+                this._moveImage(image, step, steps, _images[i].angle + distance, i);
+            }
+        },
+
         _create: function () {
-            this._addSystemSettings();
             this._handleElementId();
             this._render();
             this._sizeBackup();
             this._performLayout();
             this._removeEventHandlers();
             this._addEventHandlers();
-        },
-
-        _addSystemSettings: function () {
-            this._settings = {
-                images: [],
-                a: 0,
-                b: 0,
-                activeAnimation: 0,
-                current: 0,
-                stepDuration: 25,
-                sizeBackup: [],
-                enlarged: true,
-                maxHeight: 0
-            };
         },
 
         _handleElementId: function () {
@@ -140,31 +155,28 @@
         _render: function () {
             var image,
                 images = $(this.element.children()),
-                count = 0,
-                settings = this._settings;
+                count = 0;
             this.element[0].tabIndex = 0;
-            this.element[0].style.zIndex = 101;
             this.element.css('outline-width', '0px');
             this._calculateEllipse();
             images.each(function (index) {
                 image = {
                     image: $(images[index])
                 };
-                settings.images.push(image);
+                _images.push(image);
                 count += 1;
             });
             this.count = count;
         },
 
         _calculateEllipse: function () {
-            var settings = this._settings,
-                options = this.options;
-            settings.a = options.focus / options.eccentricity;
-            settings.b = Math.sqrt(settings.a * settings.a - options.focus * options.focus);
+            var options = this.options;
+            _a = options.focus / options.eccentricity;
+            _b = Math.sqrt(_a * _a - options.focus * options.focus);
         },
 
         _sizeBackup: function () {
-            var images = this._settings.images,
+            var images = _images,
                 i = images.length,
                 width,
                 height,
@@ -176,12 +188,12 @@
                 if (height > maxHeight) {
                     maxHeight = height;
                 }
-                this._settings.sizeBackup[i] = {
+                _sizeBackup[i] = {
                     width: width,
                     ratio: height / width
                 };
             }
-            this._settings.maxHeight = maxHeight;
+            _maxHeight = maxHeight;
         },
 
         _performLayout: function () {
@@ -190,46 +202,50 @@
         },
 
         _performElementLayout: function () {
-            this.element.width(this._settings.a * 2 + this.options.imageWidth);
-            this.element.height(this._settings.maxHeight);
+            this.element.width(_a * 2 + this.options.imageWidth);
+            this.element.height(_maxHeight);
             this.element.css('overflow', 'visible');
             this.element.css('position', 'relative');
         },
 
         _performImagesLayout: function () {
-            var settings = this._settings,
-                angle = Math.PI / 2,
-                images = settings.images,
+            var angle = Math.PI / 2,
                 image = null,
-                i = images.length,
+                i = _images.length,
                 width = this.options.imageWidth,
                 step = (2 * Math.PI) / i,
-                ratio;
-            settings.current = i - 1;
+                ratio,
+                cssText;
+            _current = i - 1;
             while (i) {
                 i -= 1;
-                ratio = settings.sizeBackup[i].ratio;
-                image = images[i].image;
+                ratio = _sizeBackup[i].ratio;
+                image = _images[i].image;
                 image.width(width);
                 image.height(width * ratio);
-                settings.sizeBackup[i].width = width;
-                image[0].style.position = 'absolute';
-                this._setImagePosition(image, angle);
-                images[i].angle = angle;
-                this._handlePerspective(images[i], i);
+                _sizeBackup[i].width = width;
+                _images[i].angle = angle;
+                cssText = this._setImagePosition(angle) + ';' + this._handlePerspective(i);
+                this._setImageCssText(image[0], cssText);
                 angle += step;
             }
+        },
+
+        _setImageCssText: function (image, text) {
+            var base = 'position: absolute;';
+            image.style.cssText = base + text;
         },
 
         _enlarger: function (clone, original, button, index) {
             var enlargeWidth = this.options.enlargeWidth,
                 enlargeDuration = this.options.enlargeDuration,
                 buttonSize = this.options.closeButtonSize,
-                ratio = this._settings.sizeBackup[index].ratio;
+                ratio = _sizeBackup[index].ratio,
+                offset = this.options.enlargedOffset;
             clone.animate({ width: enlargeWidth, height: enlargeWidth * ratio }, {
                 step: function (current, fx) {
-                    var left = parseInt(original.style.left, 10),
-                        top = parseInt(original.style.top, 10);
+                    var left = offset[0] + parseInt(original.style.left, 10),
+                        top = offset[1] + parseInt(original.style.top, 10);
                     if (fx.prop === 'width') {
                         left = (left - (current - fx.start) / 2);
                         this.style.left = left + 'px';
@@ -256,43 +272,21 @@
                 'position': 'absolute',
                 'cursor': 'pointer'
             });
-            button.bind('click', { self: this, image: image, button: button }, this._closeHandler);
-            image.bind('click', { self: this, image: image, button: button }, this._closeHandler);
+            button.bind('click', this._closeHandler());
+            image.bind('click', this._closeHandler());
             return button;
         },
 
-        _closeHandler: function (event) {
-            var self = event.data.self,
-                button = event.data.button,
-                image = event.data.image;
-            button.fadeOut(self.options.closeDuration);
-            image.fadeOut(self.options.closeDuration, function () {
-                image.remove();
-                button.remove();
-                self._settings.enlarged = false;
-            });
-        },
-
-        _setImagePosition: function (image, angle) {
-            var settings = this._settings,
-                tempLeft = settings.a * Math.cos(angle) + settings.a,
-                tempTop = settings.b * Math.sin(angle) + settings.b,
-                left = tempLeft,
-                top = tempTop,
-                rotationAngle = this.options.angle;
-            if (rotationAngle) {
-                left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
-                top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
-            }
-            left += 'px';
-            top += 'px';
-            image[0].style.left = left;
-            image[0].style.top = top;
+        _closeHandler: function () {
+            var self = this;
+            return function () {
+                self.removeEnlarged();
+            };
         },
 
         _removeEventHandlers: function () {
-            var count = this._settings.images.length,
-                images = this._settings.images;
+            var count = _images.length,
+                images = _images;
             while (count) {
                 count -= 1;
                 images[count].image.off();
@@ -301,22 +295,28 @@
         },
 
         _addEventHandlers: function () {
-            var images = this._settings.images,
+            var images = _images,
                 i = images.length,
                 image = null;
             while (i) {
                 i -= 1;
                 image = images[i].image;
-                this._addMouseHandlers(image, i);
+                this._addMouseHandlers(i);
             }
             this.element.on('keydown.carousel.' + this.element[0].id, { self: this }, this._addKeyboardHandler);
         },
 
-        _addMouseHandlers: function (image, index) {
-            var self = this;
-            image.on('click', function () {
-                if (!self._settings.activeAnimation) {
-                    self.showFront(index);
+        _addMouseHandlers: function (index) {
+            var self = this,
+                image = _images[index];
+            image.image.on('click', function () {
+                if (!_activeAnimation) {
+                    var distance = self._getDistance(image.angle, Math.PI / 2, self.options.direction);
+                    if (distance !== 0) {
+                        self.showFront(index);
+                    } else {
+                        self.enlarge(index);
+                    }
                 }
             });
         },
@@ -333,17 +333,19 @@
         },
 
         _moveImage: function (image, step, stepsCount, target, index) {
-            var self = this;
+            var self = this,
+                cssText;
             if (stepsCount > 0) {
                 image.angle += step;
                 setTimeout(function () {
                     self._moveImage(image, step, stepsCount - 1, target, index);
-                }, this._settings.stepDuration);
+                }, _stepDuration);
             } else {
                 this._finishImageMovement(target, image);
             }
-            this._handlePerspective(image, index);
-            this._setImagePosition(image.image, image.angle);
+            cssText = this._handlePerspective(index);
+            cssText += ';' + this._setImagePosition(image.angle);
+            this._setImageCssText(image.image[0], cssText);
         },
 
         _finishImageMovement: function (target, image) {
@@ -354,38 +356,57 @@
             }
             image.angle = target;
             image.angle %= Math.PI * 2;
-            this._settings.activeAnimation -= 1;
+            _activeAnimation -= 1;
         },
 
-        _handlePerspective: function (image, index) {
-            var zIndex = Math.round(Math.sin(image.angle) * 100) + 100,
-                imageElement = image.image,
-                ratio = zIndex / 200;
-            imageElement[0].style.zIndex = zIndex;
-            this._handleOpacity(imageElement, ratio + this.options.minOpacity);
-            this._handleSize(imageElement, index, ratio + this.options.minSizeRatio);
+        _setImagePosition: function (angle) {
+            var tempLeft = _a * Math.cos(angle) + _a,
+                tempTop = _b * Math.sin(angle) + _b,
+                left = tempLeft,
+                top = tempTop,
+                rotationAngle = this.options.angle;
+            if (rotationAngle) {
+                left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
+                top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
+            }
+            left += 'px';
+            top += 'px';
+            return 'left:' + left + ';top:' + top;
         },
 
-        _handleOpacity: function (image, opacity) {
+        _handlePerspective: function (index) {
+            var image = _images[index],
+                zIndex = Math.round(Math.sin(image.angle) * 100) + 100,
+                ratio = zIndex / 200,
+                styleStr;
+            styleStr = this._handleOpacity(ratio + this.options.minOpacity);
+            styleStr += ';z-index:' + zIndex;
+            styleStr += ';' + this._handleSize(index, ratio + this.options.minSizeRatio);
+            return styleStr;
+        },
+
+        _handleOpacity: function (opacity) {
             if (this.options.opacity) {
                 if (opacity > 1) {
                     opacity = 1;
                 } else if (opacity < 0) {
                     opacity = 0;
                 }
-                image.fadeTo(0, opacity);
+                return 'opacity:' + opacity;
             }
+            return '';
         },
 
-        _handleSize: function (image, index, ratio) {
+        _handleSize: function (index, ratio) {
             if (this.options.resize) {
                 ratio = (ratio > 1) ? 1 : ratio;
-                var size = this._settings.sizeBackup[index],
+                var size = _sizeBackup[index],
                     newWidth = size.width * ratio,
-                    newHeight = newWidth * size.ratio;
-                image[0].style.width = newWidth + 'px';
-                image[0].style.height = newHeight + 'px';
+                    newHeight = newWidth * size.ratio,
+                    sizeStr = newWidth + 'px;' + newHeight + 'px';
+                return sizeStr;
             }
+            return '';
         },
 
         _getDistance: function (source, target, direction) {
