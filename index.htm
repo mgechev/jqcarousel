@@ -1,148 +1,37 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset='utf-8'>
-<title>jQCarousel - jQuery UI Plugin</title>
-<link rel="shortcut icon" href="images/icon.png"/>
-<script src="src/jquery-1.7.1.min.js"></script>
-<script src="src/jquery-ui-1.8.17.js"></script>
-<script src="src/jqcarousel.js"></script>
-<script type='text/javascript' src='src/menu.js'></script>
-<link rel='stylesheet' type='text/css' href='css/style.css'>
-<script type='text/javascript' src='src/page.js'></script>
-<link rel="shortcut icon" href="images/icon.png"/>
-<!--[if lte IE 9]>
-<style type="text/css">
-@font-face{
-	font-family: tangerine-bold;
-	src: url(fonts/tangerine-bold.eot);
-}
-</style>
-<![endif]-->
-<!-- Google analytics -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-18060688-9']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-  (function() {
-    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-    po.src = 'https://apis.google.com/js/plusone.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-  })();
-</script>
-</head>
-<body>
-
-<div id="page">
-
-	<!-- Bottom navigation -->
-	
-    <div class="dock-container" id="menu">
-        <a class="dock-item" href="javascript:void(0)" data-section="home"><img src="images/home.png" alt="home" /></a> 
-        <a class="dock-item" href="javascript:void(0)" data-section="basic-demo"><img src="images/basic.png" alt="basic" /></a> 			  
-        <a class="dock-item" href="javascript:void(0)" data-section="angle-demo"><img src="images/angle.png" alt="angle" /></a> 				
-        <a class="dock-item" href="javascript:void(0)" data-section="about"><img src="images/about.png" alt="about" /></a> 
-        <a class="dock-item" href="javascript:void(0)" data-section="contact"><img src="images/contact.png" alt="contact" /></a> 			  
-    </div>
-
-	<div id='content'>
-
-        <div class='section-container' id="home">
-            <div class="section-content">
-                <h3>jQCarousel</h3>
-                <div class="image-wrapper">
-                    <img src="./images/gallery-black.png" alt="jQCarousel" title="jQCarousel" />
-                    <div style="clear: both;"></div>					
-                </div>
-				<g:plusone size="medium" annotation="inline"></g:plusone>
-            </div>
+<html lang="en">
+    <head>
+        <meta charset='utf-8'>    
+        <title>jQCarousel sample</title>
+        <script src="src/jquery-1.7.1.min.js"></script>
+        <script src="src/jquery-ui-1.8.17.js"></script>
+        <script src="src/jqcarousel.js"></script>
+        <script type="text/javascript">
+            $(window).load(function () {
+                'use strict';
+                $('#gallery').jqcarousel();
+            });
+        </script>
+        <style type="text/css">
+            img {
+                height: 300px;
+            }
+            body {
+                background-color: #000000;
+                background-image: url(http://mgechev.com/images/body_background.png);
+                background-position: center center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="gallery" style="position: absolute; left: 50%; top: 150px; margin-left: -550px;">
+            <img src="images/1.png" alt="" />
+            <img src="images/2.png" alt="" />
+            <img src="images/3.png" alt="" />
+            <img src="images/4.png" alt="" />
+            <img src="images/5.png" alt="" />
+            <img src="images/6.png" alt="" />
+            <img src="images/7.png" alt="" />
         </div>
-
-        <div class='section-container' id="basic-demo">
-            <div class="section-content">
-                <h3>Basic Functionality Demo</h3>
-				<div id="gallery-basic" style="z-index: 200; margin-left: -5px;">
-					<img src="images/1.png" alt="" />
-					<img src="images/2.png" alt="" />
-					<img src="images/3.png" alt="" />
-					<img src="images/4.png" alt="" />
-					<img src="images/5.png" alt="" />
-					<img src="images/6.png" alt="" />
-					<img src="images/7.png" alt="" />
-				</div>
-				<div style="clear: both;"></div>
-			</div>
-        </div>
-
-        <div class='section-container' id="angle-demo">
-            <div class="section-content">
-                <h3>jQCarousel Under Angle Demo</h3>
-				<div id="gallery-angle" style="z-index: 200; margin-top: -50px;">
-					<img src="images/8.png" alt="" />
-					<img src="images/9.png" alt="" />
-					<img src="images/10.png" alt="" />
-					<img src="images/11.png" alt="" />
-					<img src="images/12.png" alt="" />
-					<img src="images/13.png" alt="" />
-					<img src="images/14.png" alt="" />
-				</div>
-			</div>
-        </div>
-
-        <div class='section-container' id="about">
-            <div class="section-content">
-                <h3>About</h3>
-                <br />
-                <img src="images/gallery-icon.png" alt="About the Carousel" />
-				jQCarousel is a jQuery UI plugin distributed under the <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">General Public License</a>,
-                developed by <a href="http://mgechev.com/" target="_blank">Minko Gechev</a>, used for creating carousel galleries. 
-				It's not using canvases or SVG so it has big browser compatibility. It has rich API for such a small plugin. You can find it at <a href="https://github.com/mgechev/jqcarousel" target="_blank">GitHub.</a>
-				The plugin is under construction so it's performance and features are extending constantly. If you wish to help improving the gallery you can fork the project in
-				<a href="https://github.com/mgechev/jqcarousel" target="_blank">GitHub</a> or send me advices via any of the contact methods provided in the section below.
-            </div>
-        </div>
-
-        <div class='section-container' id="contact">
-            <div class="section-content">
-                <h3>Contacts</h3>
-                <br />
-                <img src="images/contacts-icon.png" alt="About" />				
-				If you want to use jQCarousel you can find it in my repository in GitHub (in the link bellow). You can contact me using the following social networks.
-				If you wish to download jQCarousel's source code use the link <a href="./files/?file=edfa80dc88a06a19b51f9ac3bb52aaca035a060b" title="Download">here</a>.
-				<div class="contact-icons-wrapper">
-					<a href="https://plus.google.com/114008744112501594968" target="_blank">
-						<img src="images/google_plus_32.png" alt="Google+" title="Google+" />
-					</a>                    
-					<a href="http://twitter.com/mgechev/" target="_blank">
-						<img src="images/twitter_32.png" alt="Twitter" title="Twitter" />
-					</a>
-					<a href="http://github.com/mgechev/" target="_blank">
-						<img src="images/github_32.png" alt="GitHub" title="GitHub" />
-					</a>                    
-					<a href="http://blog.mgechev.com/" target="_blank">
-						<img src="images/wordpress_32.png" alt="Blog" title="Blog" />
-					</a>
-					<a href="http://blog.mgechev.com/feed/" target="_blank">
-						<img src="images/rss_32.png" alt="RSS" title="RSS" />
-					</a>
-					<a href="http://www.linkedin.com/profile/view?id=118509391" target="_blank">
-						<img src="images/linkedin_32.png" alt="LinkedIn" title="LinkedIn" />
-					</a>                    
-				</div>				
-            </div>
-		</div>
-		
-        <div class='section-container'></div>
-		<div style='font-size: 10px; font-color: #ccc;'>Copyright &copy; 2012 Minko Gechev.</div>	
-	</div>
-</div>
-</body>
+    </body>
 </html>

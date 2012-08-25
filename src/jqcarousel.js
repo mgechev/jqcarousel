@@ -20,6 +20,18 @@
 
     'use strict';
 
+    var _images = [],
+        _a = 0,
+        _b = 0,
+        _activeAnimation = 0,
+        _current = 0,
+        _stepDuration = 25,
+        _sizeBackup = [],
+        _enlarged = false,
+        _maxHeight = 0,
+        _enlargedItems = null;
+
+
     $.widget('ui.jqcarousel', {
 
         options: {
@@ -30,9 +42,9 @@
             resize: true,
             angle: 0,
             minOpacity: 0.2,
-            minSizeRatio: 0.8,
+            minSizeRatio: 0.3,
             keyboardNavigation: true,
-            imageWidth: 200,
+            imageWidth: 300,
             direction: 'shortest',
             enlargeWidth: 500,
             enlargeDuration: 200,
@@ -44,39 +56,38 @@
 
         showFront: function (index, duration, direction) {
             var animationDuration = duration === undefined ? this.options.animationDuration : duration,
-                image = this._.images[index],
+                image = _images[index],
                 distance;
             direction = direction || this.options.direction;
-            if (!this._.enlarged) {
+            if (!_enlarged) {
                 this._rotateImages(index, animationDuration, direction, distance);
             }
         },
 
         enlarge: function (index) {
             if (this.options.enlargeEnabled) {
-                var image = this._.images[index].image,
+                var image = _images[index].image,
                     clone = image.clone(),
                     parent = image.parent(),
                     button;
                 clone[0].style.zIndex = 200;
                 clone.appendTo(parent);
                 button = this._addCloseButton(clone);
-                this._.enlargedItems = { image: clone, button: button };
+                _enlargedItems = { image: clone, button: button };
                 this._enlarger(clone, image[0], button[0], index);
-                this._.enlarged = true;
+                _enlarged = true;
             }
         },
 
         removeEnlarged: function () {
-            if (this._.enlargedItems) {
-                var self = this,
-                    image = this._.enlargedItems.image,
-                    button = this._.enlargedItems.button;
+            if (_enlargedItems) {
+                var image = _enlargedItems.image,
+                    button = _enlargedItems.button;
                 button.fadeOut(this.options.closeDuration);
                 image.fadeOut(this.options.closeDuration, function () {
                     image.remove();
                     button.remove();
-                    self._.enlarged = false;
+                    _enlarged = false;
                 });
             }
         },
@@ -85,8 +96,8 @@
             if (duration === undefined) {
                 duration = this.options.animationDuration;
             }
-            if (!this._.activeAnimation) {
-                this.showFront((this._.current + 1) % this._.images.length, duration, 'cw');
+            if (!_activeAnimation) {
+                this.showFront((_current + 1) % _images.length, duration, 'cw');
             }
         },
 
@@ -94,11 +105,11 @@
             if (duration === undefined) {
                 duration = this.options.animationDuration;
             }
-            var next = this._.current - 1;
+            var next = _current - 1;
             if (next < 0) {
-                next = this._.images.length - 1;
+                next = _images.length - 1;
             }
-            if (!this._.activeAnimation) {
+            if (!_activeAnimation) {
                 this.showFront(next, duration, 'ccw');
             }
         },
@@ -108,44 +119,28 @@
         },
 
         _rotateImages: function (index, duration, direction) {
-            var i = this._.images.length,
-                image = this._.images[index],
+            var i = _images.length,
+                image = _images[index],
                 distance = this._getDistance(image.angle, Math.PI / 2, direction),
-                steps = duration / this._.stepDuration,
+                steps = duration / _stepDuration,
                 step = distance / steps;
-            this._.current = index;
+            _current = index;
             direction = direction || this.options.direction;
             while (i) {
                 i -= 1;
-                this._.activeAnimation += 1;
-                image = this._.images[i];
-                this._moveImage(image, step, steps, this._.images[i].angle + distance, i);
+                _activeAnimation += 1;
+                image = _images[i];
+                this._moveImage(image, step, steps, _images[i].angle + distance, i);
             }
         },
 
         _create: function () {
-            this._initPrivateProperties();
             this._handleElementId();
             this._render();
             this._sizeBackup();
             this._performLayout();
             this._removeEventHandlers();
             this._addEventHandlers();
-        },
-
-        _initPrivateProperties: function () {
-            this._ = {
-                images: [],
-                a: 0,
-                b: 0,
-                activeAnimation: 0,
-                current: 0,
-                stepDuration: 25,
-                sizeBackup: [],
-                enlarged: false,
-                maxHeight: 0,
-                enlargedItems: null
-            };
         },
 
         _handleElementId: function () {
@@ -158,8 +153,7 @@
         },
 
         _render: function () {
-            var self = this,
-                image,
+            var image,
                 images = $(this.element.children()),
                 count = 0;
             this.element[0].tabIndex = 0;
@@ -169,7 +163,7 @@
                 image = {
                     image: $(images[index])
                 };
-                self._.images.push(image);
+                _images.push(image);
                 count += 1;
             });
             this.count = count;
@@ -177,12 +171,12 @@
 
         _calculateEllipse: function () {
             var options = this.options;
-            this._.a = options.focus / options.eccentricity;
-            this._.b = Math.sqrt(this._.a * this._.a - options.focus * options.focus);
+            _a = options.focus / options.eccentricity;
+            _b = Math.sqrt(_a * _a - options.focus * options.focus);
         },
 
         _sizeBackup: function () {
-            var images = this._.images,
+            var images = _images,
                 i = images.length,
                 width,
                 height,
@@ -194,12 +188,12 @@
                 if (height > maxHeight) {
                     maxHeight = height;
                 }
-                this._.sizeBackup[i] = {
+                _sizeBackup[i] = {
                     width: width,
                     ratio: height / width
                 };
             }
-            this._.maxHeight = maxHeight;
+            _maxHeight = maxHeight;
         },
 
         _performLayout: function () {
@@ -208,8 +202,8 @@
         },
 
         _performElementLayout: function () {
-            this.element.width(this._.a * 2 + this.options.imageWidth);
-            this.element.height(this._.maxHeight);
+            this.element.width(_a * 2 + this.options.imageWidth);
+            this.element.height(_maxHeight);
             this.element.css('overflow', 'visible');
             this.element.css('position', 'relative');
         },
@@ -217,20 +211,20 @@
         _performImagesLayout: function () {
             var angle = Math.PI / 2,
                 image = null,
-                i = this._.images.length,
+                i = _images.length,
                 width = this.options.imageWidth,
                 step = (2 * Math.PI) / i,
                 ratio,
                 cssText;
-            this._.current = i - 1;
+            _current = i - 1;
             while (i) {
                 i -= 1;
-                ratio = this._.sizeBackup[i].ratio;
-                image = this._.images[i].image;
-                this._.sizeBackup[i].width = width;
-                this._.images[i].angle = angle;
+                ratio = _sizeBackup[i].ratio;
+                image = _images[i].image;
                 image.width(width);
                 image.height(width * ratio);
+                _sizeBackup[i].width = width;
+                _images[i].angle = angle;
                 cssText = this._setImagePosition(angle) + ';' + this._handlePerspective(i);
                 this._setImageCssText(image[0], cssText);
                 angle += step;
@@ -246,7 +240,7 @@
             var enlargeWidth = this.options.enlargeWidth,
                 enlargeDuration = this.options.enlargeDuration,
                 buttonSize = this.options.closeButtonSize,
-                ratio = this._.sizeBackup[index].ratio,
+                ratio = _sizeBackup[index].ratio,
                 offset = this.options.enlargedOffset;
             clone.animate({ width: enlargeWidth, height: enlargeWidth * ratio }, {
                 step: function (current, fx) {
@@ -291,8 +285,8 @@
         },
 
         _removeEventHandlers: function () {
-            var count = this._.images.length,
-                images = this._.images;
+            var count = _images.length,
+                images = _images;
             while (count) {
                 count -= 1;
                 images[count].image.off();
@@ -301,7 +295,7 @@
         },
 
         _addEventHandlers: function () {
-            var images = this._.images,
+            var images = _images,
                 i = images.length,
                 image = null;
             while (i) {
@@ -314,9 +308,9 @@
 
         _addMouseHandlers: function (index) {
             var self = this,
-                image = this._.images[index];
+                image = _images[index];
             image.image.on('click', function () {
-                if (!self._.activeAnimation) {
+                if (!_activeAnimation) {
                     var distance = self._getDistance(image.angle, Math.PI / 2, self.options.direction);
                     if (distance !== 0) {
                         self.showFront(index);
@@ -345,7 +339,7 @@
                 image.angle += step;
                 setTimeout(function () {
                     self._moveImage(image, step, stepsCount - 1, target, index);
-                }, this._.stepDuration);
+                }, _stepDuration);
             } else {
                 this._finishImageMovement(target, image);
             }
@@ -362,12 +356,12 @@
             }
             image.angle = target;
             image.angle %= Math.PI * 2;
-            this._.activeAnimation -= 1;
+            _activeAnimation -= 1;
         },
 
         _setImagePosition: function (angle) {
-            var tempLeft = this._.a * Math.cos(angle) + this._.a,
-                tempTop = this._.b * Math.sin(angle) + this._.b,
+            var tempLeft = _a * Math.cos(angle) + _a,
+                tempTop = _b * Math.sin(angle) + _b,
                 left = tempLeft,
                 top = tempTop,
                 rotationAngle = this.options.angle;
@@ -381,7 +375,7 @@
         },
 
         _handlePerspective: function (index) {
-            var image = this._.images[index],
+            var image = _images[index],
                 zIndex = Math.round(Math.sin(image.angle) * 100) + 100,
                 ratio = zIndex / 200,
                 styleStr;
@@ -404,18 +398,15 @@
         },
 
         _handleSize: function (index, ratio) {
-            var image = this._.images[index].image,
-                newWidth = this._.sizeBackup[index].width,
-                newHeight = newWidth * this._.sizeBackup[index].ratio,
-                size,
-                sizeStr;
             if (this.options.resize) {
                 ratio = (ratio > 1) ? 1 : ratio;
-                size = this._.sizeBackup[index];
-                newWidth = size.width * ratio;
-                newHeight = newWidth * size.ratio;
+                var size = _sizeBackup[index],
+                    newWidth = size.width * ratio,
+                    newHeight = newWidth * size.ratio,
+                    sizeStr = newWidth + 'px;' + newHeight + 'px';
+                return sizeStr;
             }
-            return 'width:' + newWidth + 'px;height' + newHeight + 'px';
+            return '';
         },
 
         _getDistance: function (source, target, direction) {
