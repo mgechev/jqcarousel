@@ -4,7 +4,7 @@ Carousel gallery
 jQCarousel is jQuery UI plugin used for creating carousel image galleries.
 It's not using canvases or SVG so it can be run under older browsers.
 
-  * Version: 1.1.4
+  * Version: 1.1.5
   * License: GPL
   * Author: [Minko Gechev](http://twitter.com/mgechev)
 
