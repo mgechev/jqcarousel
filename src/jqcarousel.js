@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-    jQuery UI plugin jQCarousel v1.1.4.
+    jQuery UI plugin jQCarousel v1.1.5.
     Copyright (C) 2012 Minko Gechev, http://mgechev.com/, @mgechev
 
     This program is free software: you can redistribute it and/or modify
@@ -253,10 +253,12 @@
                     var left = offset[0] + parseInt(original.style.left, 10),
                         top = offset[1] + parseInt(original.style.top, 10);
                     if (fx.prop === 'width') {
+                        current = current || $(this).width();
                         left = (left - (current - fx.start) / 2);
                         this.style.left = left + 'px';
                         button.style.left = (left - buttonSize / 2 + current) + 'px';
                     } else {
+                        current = current || $(this).height();
                         top = (top - (current - fx.start) / 2);
                         this.style.top = top + 'px';
                         button.style.top = (top - buttonSize / 2) + 'px';
@@ -464,4 +466,3 @@
         }
     });
 }(jQuery));
-
