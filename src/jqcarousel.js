@@ -16,7 +16,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*jslint nomen: true */
 
-(function ($) {
+;(function ($) {
 
     'use strict';
 
