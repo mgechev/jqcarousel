@@ -347,7 +347,7 @@
                 cssText;
             if (stepsCount > 0) {
                 image.angle += step;
-                //TODO use requestAnimationFrame if possible
+                //TODO use requestAnimationFrame if possible and fallback to setTimeout
                 setTimeout(function () {
                     self._moveImage(image, step, stepsCount - 1, target, index);
                 }, this._.stepDuration);
