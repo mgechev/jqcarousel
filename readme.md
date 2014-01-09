@@ -9,7 +9,7 @@ It's not using canvases or SVG so it can be run under older browsers.
   * Author: [Minko Gechev](http://twitter.com/mgechev)
 
 jQCarousel API
-----------------------
+--------------
 
 **Properties**
 
@@ -40,7 +40,7 @@ jQCarousel API
  * rotateLeft: Arguments - { duration: number }. Rotating the carousel once with left direction.
 
 Sample usage
----------------------
+------------
 
 ### JavaScript
 
@@ -59,3 +59,9 @@ Sample usage
         <img src="images/6.png" alt="" />
         <img src="images/7.png" alt="" />
     </div>
+
+Contributors
+------------
+
+Author: [@mgechev](https://github.com/mgechev)
+Contributor: [@hmachefe](https://github.com/hmachefe)
