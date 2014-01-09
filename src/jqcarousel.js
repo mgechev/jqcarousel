@@ -420,7 +420,7 @@
                 newWidth = size.width * ratio;
                 newHeight = newWidth * size.ratio;
             }
-            return 'width:' + newWidth + 'px;height' + newHeight + 'px';
+            return 'width:' + newWidth + 'px;height:' + newHeight + 'px';
         },
 
         _getDistance: function (source, target, direction) {
