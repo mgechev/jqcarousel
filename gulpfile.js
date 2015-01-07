@@ -1,12 +1,14 @@
 'use strict';
 
 var gulp = require('gulp'),
-    uglify = require('gulp-uglify');
+    uglify = require('gulp-uglify'),
+    rename = require('gulp-rename');
 
 gulp.task('minify', function () {
-  return gulp.src('/src/*')
+  return gulp.src('src/*.js')
   .pipe(uglify())
-  .pipe(gulp.dest('/dist/jqcarousel.min.js'));
+  .pipe(rename('jqcarousel.min.js'))
+  .pipe(gulp.dest('dist/'));
 });
 
 gulp.task('default', ['minify']);
