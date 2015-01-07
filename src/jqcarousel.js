@@ -1,4 +1,6 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+/* jshint maxparams: 5 */
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
   jQuery UI plugin jQCarousel v1.1.5.
   Copyright (C) 2012 Minko Gechev, http://mgechev.com/, @mgechev
 
@@ -16,7 +18,7 @@
 
             jslint nomen: true
 
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 ;(function ($) {
 
@@ -45,9 +47,9 @@
     },
 
     showFront: function (index, duration, direction) {
-      var animationDuration = duration === undefined ? this.options.animationDuration : duration,
-        image = this._.images[index],
-        distance;
+      var animationDuration = duration === undefined ?
+        this.options.animationDuration : duration,
+          distance;
       direction = direction || this.options.direction;
       if (!this._.enlarged) {
         this._rotateImages(index, animationDuration, direction, distance);
@@ -88,7 +90,8 @@
         duration = this.options.animationDuration;
       }
       if (!this._.activeAnimation) {
-        this.showFront((this._.current + 1) % this._.images.length, duration, 'cw');
+        this.showFront((this._.current + 1) %
+          this._.images.length, duration, 'cw');
       }
     },
 
@@ -121,7 +124,8 @@
         i -= 1;
         this._.activeAnimation += 1;
         image = this._.images[i];
-        this._moveImage(image, step, steps, this._.images[i].angle + distance, i);
+        this._moveImage(image, step, steps,
+          this._.images[i].angle + distance, i);
       }
     },
 
@@ -233,7 +237,8 @@
         this._.images[i].angle = angle;
         image.width(width);
         image.height(width * ratio);
-        cssText = this._setImagePosition(angle) + ';' + this._handlePerspective(i);
+        cssText = this._setImagePosition(angle) + ';' +
+          this._handlePerspective(i);
         this._setImageCssText(image[0], cssText);
         angle += step;
       }
@@ -301,7 +306,8 @@
         count -= 1;
         images[count].image.off();
       }
-      this.element.off('keydown.carousel.' + this.element[0].id, this._addKeyboardHandler);
+      this.element.off('keydown.carousel.' +
+        this.element[0].id, this._addKeyboardHandler);
     },
 
     _addEventHandlers: function () {
@@ -313,7 +319,8 @@
         image = images[i].image;
         this._addMouseHandlers(i);
       }
-      this.element.on('keydown.carousel.' + this.element[0].id, { self: this }, this._addKeyboardHandler);
+      this.element.on('keydown.carousel.' +
+        this.element[0].id, { self: this }, this._addKeyboardHandler);
     },
 
     _addMouseHandlers: function (index) {
@@ -321,7 +328,8 @@
         image = this._.images[index];
       image.image.on('click', function () {
         if (!self._.activeAnimation) {
-          var distance = self._getDistance(image.angle, Math.PI / 2, self.options.direction);
+          var distance = self._getDistance(image.angle,
+            Math.PI / 2, self.options.direction);
           if (distance !== 0) {
             self.showFront(index);
           } else {
@@ -377,8 +385,10 @@
         top = tempTop,
         rotationAngle = this.options.angle;
       if (rotationAngle) {
-        left = Math.cos(rotationAngle) * tempLeft - Math.sin(rotationAngle) * tempTop;
-        top = Math.sin(rotationAngle) * tempLeft + Math.cos(rotationAngle) * tempTop;
+        left = Math.cos(rotationAngle) *
+          tempLeft - Math.sin(rotationAngle) * tempTop;
+        top = Math.sin(rotationAngle) *
+          tempLeft + Math.cos(rotationAngle) * tempTop;
       }
       left += 'px';
       top += 'px';
@@ -387,12 +397,13 @@
 
     _handlePerspective: function (index) {
       var image = this._.images[index],
-        zIndex = Math.round(Math.sin(image.angle) * 100) + 100,
-        ratio = zIndex / 200,
-        styleStr;
+          zIndex = Math.round(Math.sin(image.angle) * 100) + 100,
+          ratio = zIndex / 200,
+          styleStr;
       styleStr = this._handleOpacity(ratio + this.options.minOpacity);
       styleStr += ';z-index:' + zIndex;
-      styleStr += ';' + this._handleSize(index, ratio + this.options.minSizeRatio);
+      styleStr += ';' +
+        this._handleSize(index, ratio + this.options.minSizeRatio);
       return styleStr;
     },
 
@@ -409,11 +420,9 @@
     },
 
     _handleSize: function (index, ratio) {
-      var image = this._.images[index].image,
-        newWidth = this._.sizeBackup[index].width,
-        newHeight = newWidth * this._.sizeBackup[index].ratio,
-        size,
-        sizeStr;
+      var newWidth = this._.sizeBackup[index].width,
+          newHeight = newWidth * this._.sizeBackup[index].ratio,
+          size;
       if (this.options.resize) {
         ratio = (ratio > 1) ? 1 : ratio;
         size = this._.sizeBackup[index];
