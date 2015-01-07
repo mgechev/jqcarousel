@@ -1,0 +1,25 @@
+{
+  "name": "jqcarousel",
+  "version": "1.1.5",
+  "homepage": "http://carousel.mgechev.com/",
+  "authors": [
+    "mgechev <mgechev@gmail.com>"
+  ],
+  "description": "jQuery UI plugin jQCarousel",
+  "keywords": [
+    "jquery",
+    "gallery",
+    "carousel"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3"
+  }
+}
